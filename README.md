@@ -14,7 +14,7 @@
 
 </div>
 
-## 👻 See it in action
+## 👻 What does it do?
 
 `pi-autocomplete` adds **inline ghost-text completion** to Pi's prompt editor.
 
