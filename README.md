@@ -2,7 +2,7 @@
 
 # pi-autocomplete
 
-**Ghost text autocomplete for Pi.**
+**Fast, private word completion for Pi – no API keys, no inference server to configure.**
 
 [![npm](https://img.shields.io/npm/v/pi-autocomplete?style=flat&label=npm)](https://www.npmjs.com/package/pi-autocomplete)
 [![Pi](https://img.shields.io/badge/Pi-extension-222?style=flat)](https://github.com/badlogic/pi-mono)
@@ -10,15 +10,15 @@
 [![Rust](https://img.shields.io/badge/Rust-000?style=flat&logo=rust&logoColor=white)](https://www.rust-lang.org/)
 [![SmolLM2](https://img.shields.io/badge/SmolLM2-135M-yellow?style=flat)](https://huggingface.co/HuggingFaceTB/SmolLM2-135M)
 [![Node](https://img.shields.io/badge/Node.js-%E2%89%A522.19-339933?style=flat&logo=node.js&logoColor=white)](https://nodejs.org/)
-[![License](https://img.shields.io/github/license/SheetHappiness/pi-ghost-autocomplete?style=flat)](LICENSE)
+[![License](https://img.shields.io/github/license/SheetHappiness/pi-autocomplete?style=flat)](LICENSE)
 
 </div>
 
-## 👻 What does it do?
+## 👻 See it in action
 
 `pi-autocomplete` adds **inline ghost-text completion** to Pi's prompt editor.
 
-As you type, it tries to predict the rest of the current word and shows the suggestion directly after the cursor.
+As you type, it suggests the rest of the **current word** as ghost text right at your cursor. It does not generate full prompts.
 
 Press **`Tab`** or **`→`** to accept it.  
 Press **`Esc`** to dismiss it.
@@ -31,7 +31,14 @@ Press **`Esc`** to dismiss it.
 
 </div>
 
-The goal is simple: make repetitive typing in Pi a little faster without changing how the editor normally works.
+The goal: spend less time finishing repetitive words while keeping Pi's usual editor behavior.
+
+**Why this extension?**
+
+- **Instant dictionary-first suggestions** for familiar words, with no model call.
+- **On-device SmolLM2 fallback** when a word prefix is ambiguous.
+- **Personal vocabulary** learned from prompts and accepted completions.
+- **No API key, subscription or separate Ollama server** – inference runs locally on CPU.
 
 ## 📦 Install
 
@@ -39,7 +46,9 @@ The goal is simple: make repetitive typing in Pi a little faster without changin
 pi install npm:pi-autocomplete
 ```
 
-#### No Rust toolchain is needed for normal installation.
+Prebuilt native packages mean **no Rust toolchain is needed** for normal installation. On the first interactive start, the small model's files are downloaded, verified and cached; afterward, inference runs locally. The dictionary keeps working even if the model is unavailable.
+
+[View package in the Pi catalog](https://pi.dev/packages/pi-autocomplete) · [Report a bug or suggest an improvement](https://github.com/SheetHappiness/pi-autocomplete/issues)
 
 ## ⚙️ How it works
 
