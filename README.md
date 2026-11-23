@@ -40,7 +40,7 @@ The goal: spend less time finishing repetitive words while keeping Pi's usual ed
 - **Personal vocabulary** learned from prompts and accepted completions.
 - **No API key, subscription or separate Ollama server** – inference runs locally on CPU.
 
-## 📦 Install
+## 💿 Install
 
 **GitHub (stable releases)**
 
@@ -132,7 +132,7 @@ Pi's own slash commands and file completion keep priority.
 
 #### Suggestions that cannot fit correctly in the available terminal width are hidden instead of forcing broken rendering.
 
-## 🛠️ Commands
+## 📟 Commands
 
 ```text
 /ghost on
@@ -158,7 +158,7 @@ Prompt text is not sent to an external model service.
 
 #### The dictionary remains usable while the model is loading or if the native predictor fails.
 
-## 💿 Platforms
+## 🔌 Platforms
 
 Prebuilt native packages are available for:
 
@@ -167,7 +167,7 @@ Prebuilt native packages are available for:
 - Linux ARM64
 - macOS ARM64
 
-## 🧩 Stack
+## 🧬 Stack
 
 **Pi** · **TypeScript** · **Rust** · **SmolLM2-135M** · **Node.js**
 
