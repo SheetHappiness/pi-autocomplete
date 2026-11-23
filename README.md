@@ -42,11 +42,29 @@ The goal: spend less time finishing repetitive words while keeping Pi's usual ed
 
 ## 📦 Install
 
+**Recommended – GitHub (stable releases)**
+
+```sh
+pi install git:github.com/SheetHappiness/pi-autocomplete@stable
+```
+
+The [`stable` branch](https://github.com/SheetHappiness/pi-autocomplete/tree/stable) tracks verified releases rather than in-progress changes on `main`. Update the extension through Pi:
+
+```sh
+pi update --extensions
+```
+
+**Alternative – npm**
+
 ```sh
 pi install npm:pi-autocomplete
 ```
 
-Prebuilt native packages mean **no Rust toolchain is needed** for normal installation. On the first interactive start, the small model's files are downloaded, verified and cached; afterward, inference runs locally. The dictionary keeps working even if the model is unavailable.
+Both methods use prebuilt native packages from npm, so **no Rust toolchain is needed** for normal installation. The GitHub installation also requires access to the npm registry to fetch the appropriate native package.
+
+Switching from npm? Run `pi remove npm:pi-autocomplete` before installing the GitHub source, so Pi does not load the extension twice.
+
+On the first interactive start, the small model's files are downloaded, verified and cached; afterward, inference runs locally. The dictionary keeps working even if the model is unavailable.
 
 [View package in the Pi catalog](https://pi.dev/packages/pi-autocomplete) · [Report a bug or suggest an improvement](https://github.com/SheetHappiness/pi-autocomplete/issues)
 
