@@ -42,7 +42,7 @@ The goal: spend less time finishing repetitive words while keeping Pi's usual ed
 
 ## 📦 Install
 
-**Recommended – GitHub (stable releases)**
+**GitHub (stable releases)**
 
 ```sh
 pi install git:github.com/SheetHappiness/pi-autocomplete@stable
