@@ -24,7 +24,7 @@
   ],
   "pi": {
     "extensions": [
-      "./src/pi-ghost-autocomplete.ts"
+      "./src/pi-autocomplete.ts"
     ]
   },
   "files": [

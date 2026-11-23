@@ -21,7 +21,7 @@ import {
   initTheme,
   getEditorTheme,
 } from "../node_modules/@earendil-works/pi-coding-agent/dist/modes/interactive/theme/theme.js";
-import ghostAutocomplete from "../src/pi-ghost-autocomplete.ts";
+import ghostAutocomplete from "../src/pi-autocomplete.ts";
 import { PersonalDictionaryStore } from "../src/dictionary/store.ts";
 import type { Predictor } from "../src/completion/types.ts";
 import type { GhostTextEditor } from "../src/editor/ghost-text-editor.ts";
