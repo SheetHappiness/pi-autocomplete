@@ -4,7 +4,7 @@ import { readFileSync, existsSync } from "node:fs";
 const root = new URL("../", import.meta.url);
 test("Pi package has exact platform deps, no runtime host or install hooks", () => {
   const p = JSON.parse(readFileSync(new URL("package.json", root), "utf8"));
-  assert.deepEqual(p.pi.extensions, ["./src/pi-ghost-autocomplete.ts"]);
+  assert.deepEqual(p.pi.extensions, ["./src/pi-autocomplete.ts"]);
   assert.ok(existsSync(new URL(p.pi.extensions[0], root)));
   assert.equal(Object.keys(p.optionalDependencies ?? {}).length, 4);
   for (const value of Object.values(p.optionalDependencies))

@@ -22,7 +22,7 @@ import {
   createExtensionRuntime,
 } from "../node_modules/@earendil-works/pi-coding-agent/dist/core/extensions/loader.js";
 import { createEventBus } from "@earendil-works/pi-coding-agent";
-import ghostAutocomplete from "../src/pi-ghost-autocomplete.ts";
+import ghostAutocomplete from "../src/pi-autocomplete.ts";
 import type { Predictor } from "../src/completion/types.ts";
 import { GhostTextEditor } from "../src/editor/ghost-text-editor.ts";
 import { fileURLToPath } from "node:url";
@@ -189,7 +189,7 @@ test("host extension loader and registered handlers stay inert in RPC, switch an
   const loaded = await loadExtensions(
     [
       fileURLToPath(
-        new URL("../src/pi-ghost-autocomplete.ts", import.meta.url),
+        new URL("../src/pi-autocomplete.ts", import.meta.url),
       ),
     ],
     process.cwd(),

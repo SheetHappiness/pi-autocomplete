@@ -6,7 +6,7 @@ const [packed] = JSON.parse(
 );
 const names = packed.files.map((f) => f.path);
 for (const name of [
-  "src/pi-ghost-autocomplete.ts",
+  "src/pi-autocomplete.ts",
   "src/editor/ghost-text-editor.ts",
   "src/dictionary/common-en.json",
   "src/dictionary/provenance.json",
