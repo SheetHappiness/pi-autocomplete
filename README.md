@@ -54,7 +54,7 @@ The [`stable` branch](https://github.com/SheetHappiness/pi-autocomplete/tree/sta
 pi update --extensions
 ```
 
-**Alternative – npm**
+**npm**
 
 ```sh
 pi install npm:pi-autocomplete
