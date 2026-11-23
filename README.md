@@ -198,3 +198,10 @@ See [`THIRD_PARTY_NOTICES.md`](THIRD_PARTY_NOTICES.md) for full attribution and 
 ## 📄 License
 
 MIT
+
+<details>
+<summary>☕ One more thing...</summary>
+
+![A programmer walks into a café](./assets/coffee-break.gif)
+
+</details>
