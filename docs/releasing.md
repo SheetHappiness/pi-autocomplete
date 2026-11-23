@@ -1,4 +1,4 @@
-# Preparing v0.1.1 for publication
+# Preparing v0.1.2 for publication
 
 The canonical repository is [`SheetHappiness/pi-autocomplete`](https://github.com/SheetHappiness/pi-autocomplete).
 The npm parent is `pi-autocomplete`; the unscoped `pi-ghost-autocomplete` name
@@ -39,7 +39,7 @@ After npm accepts an upload, its publish-time processing can temporarily return
 If processing takes longer, do not upload the same version again: wait for npm
 to make it available, then rerun the release script to verify and continue.
 
-Finally use an isolated Pi profile to run `pi install npm:pi-autocomplete@0.1.1`
+Finally use an isolated Pi profile to run `pi install npm:pi-autocomplete@0.1.2`
 against the public registry. Confirm extension discovery, native package
 resolution and model startup without a development binary override. The fixture
 registry smoke test in CI verifies dependency selection and install/remove;
@@ -49,15 +49,21 @@ Do not upload model weights, user sessions, npm credentials or local toolchains.
 Model preparation still starts at interactive Pi startup and verifies pinned
 weight hashes before native loading. Installation itself does not download weights.
 
+## Release contents
+
+0.1.2 updates the published extension entrypoint filename to
+`src/pi-autocomplete.ts` without changing extension behavior. The existing
+platform-scoped npm package names remain unchanged for compatibility.
+
 ## Pre-publication lockfile note
 
-`package-lock.json` is aligned with 0.1.1, including all four optional native
+`package-lock.json` is aligned with 0.1.2, including all four optional native
 packages. Their `resolved`/`integrity` fields are intentionally absent because
-0.1.1 tarballs have not been published yet; keeping 0.1.0 integrity would point
+0.1.2 tarballs have not been published yet; keeping 0.1.0 integrity would point
 to the wrong binaries. CI builds the platform artifacts from this commit and
 runs installation against a local fixture registry, not the public npm release.
-After an authorized publication, regenerate and commit the lockfile so npm
-pins the actual published 0.1.1 tarball integrity values.
+After publishing, regenerate and commit the lockfile so npm pins the actual
+published 0.1.2 tarball integrity values.
 
 The `SOURCE-MANIFEST.json`, `SHA256SUMS`, and dated implementation records are
 historical evidence for 0.1.0, not manifests for this new release candidate.

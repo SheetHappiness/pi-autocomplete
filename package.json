@@ -1,6 +1,6 @@
 {
   "name": "pi-autocomplete",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "description": "Local, private ghost-text word autocomplete for Pi with a personal dictionary and SmolLM2 fallback",
   "repository": {
     "type": "git",
@@ -47,10 +47,10 @@
     "@earendil-works/pi-tui": "*"
   },
   "optionalDependencies": {
-    "@sheethappiness/pi-ghost-autocomplete-darwin-arm64": "0.1.1",
-    "@sheethappiness/pi-ghost-autocomplete-linux-arm64-gnu": "0.1.1",
-    "@sheethappiness/pi-ghost-autocomplete-linux-x64-gnu": "0.1.1",
-    "@sheethappiness/pi-ghost-autocomplete-win32-x64-msvc": "0.1.1"
+    "@sheethappiness/pi-ghost-autocomplete-darwin-arm64": "0.1.2",
+    "@sheethappiness/pi-ghost-autocomplete-linux-arm64-gnu": "0.1.2",
+    "@sheethappiness/pi-ghost-autocomplete-linux-x64-gnu": "0.1.2",
+    "@sheethappiness/pi-ghost-autocomplete-win32-x64-msvc": "0.1.2"
   },
   "devDependencies": {
     "@earendil-works/pi-coding-agent": "1.3.0",
