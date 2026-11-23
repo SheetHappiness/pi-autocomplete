@@ -53,6 +53,7 @@ jobs:
           node scripts/verify-package.mjs
           npm pack --ignore-scripts --pack-destination artifacts --json > artifacts/parent-pack.json
           Remove-Item Env:PI_GHOST_NATIVE_PATH
+          $env:PI_GHOST_GIT_SOURCE = 'git:github.com/${{ github.event.pull_request.head.repo.full_name || github.repository }}@${{ github.event.pull_request.head.sha || github.sha }}'
           node scripts/install-smoke.mjs
       - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
         with:

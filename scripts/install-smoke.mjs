@@ -173,6 +173,65 @@ try {
   await run(["install", project]);
   assert.ok((await run(["list"])).includes(project));
   await run(["remove", project]);
+
+  // CI also installs this exact source revision through Pi's GitHub package
+  // manager. The local fixture registry serves the candidate native tarball,
+  // so this can run before the version is published to public npm.
+  const gitSource = process.env.PI_GHOST_GIT_SOURCE;
+  if (gitSource) {
+    const match = /^git:github\.com\/([^/@]+)\/([^/@]+)@([a-f0-9]{40})$/i.exec(gitSource);
+    assert.ok(match, "PI_GHOST_GIT_SOURCE must be an exact GitHub commit");
+    const [, owner, repo, commit] = match;
+    const gitInstalled = await run(["install", gitSource]);
+    const gitListed = await run(["list"]);
+    assert.ok(gitListed.includes(gitSource), "Pi did not register the GitHub source");
+
+    const gitRoot = join(agentDir, "git", "github.com", owner, repo);
+    const gitManifest = JSON.parse(await readFile(join(gitRoot, "package.json"), "utf8"));
+    assert.equal(gitManifest.version, version, "GitHub checkout has the wrong package version");
+    assert.deepEqual(gitManifest.pi.extensions, parent.pi.extensions);
+
+    const nativeName = names[1];
+    const gitNativePath = join(gitRoot, "node_modules", nativeName, "ghost-native.node");
+    await access(gitNativePath);
+    const gitRequire = createRequire(join(gitRoot, "src/native/load.ts"));
+    const { TextPredictor: GitTextPredictor } = gitRequire(nativeName);
+    assert.equal(typeof GitTextPredictor, "function");
+    const gitEngine = new GitTextPredictor({
+      modelDir: join(root, "absent"),
+      stateDir: join(root, "git-state"),
+    });
+    // Missing weights must fail after native loading, not at require()/startup.
+    await assert.rejects(gitEngine.ready());
+    await gitEngine.close();
+
+    const gitLoader = new DefaultResourceLoader({
+      cwd,
+      agentDir,
+      noContextFiles: true,
+      noSkills: true,
+      noPromptTemplates: true,
+      noThemes: true,
+      disabledBuiltinExtensions: ["mcp"],
+    });
+    await gitLoader.reload();
+    const gitExtensions = gitLoader.getExtensions();
+    assert.deepEqual(gitExtensions.errors, []);
+    assert.ok(
+      gitExtensions.extensions.some(
+        (extension) =>
+          extension.commands.has("ghost") &&
+          resolve(extension.path) ===
+            resolve(gitRoot, gitManifest.pi.extensions[0]),
+      ),
+      "Installed GitHub extension was not discovered by Pi",
+    );
+    console.log(
+      `PASS ${target}: Pi installed ${gitSource}, discovered the extension and loaded the native predictor`,
+    );
+    // Do not remove the checkout here: a loaded .node can remain locked on Windows.
+    // The isolated temporary profile is discarded after CI.
+  }
   await writeFile(
     join(root, "result.json"),
     JSON.stringify(
