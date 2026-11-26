@@ -4,7 +4,7 @@
   "description": "Local, private ghost-text word autocomplete for Pi with a personal dictionary and SmolLM2 fallback",
   "repository": {
     "type": "git",
-    "url": "https://github.com/SheetHappiness/pi-autocomplete.git"
+    "url": "https://github.com/softsock/pi-autocomplete.git"
   },
   "type": "module",
   "license": "MIT",
@@ -59,8 +59,8 @@
     "prettier": "3.6.2",
     "typescript": "7.0.2"
   },
-  "homepage": "https://github.com/SheetHappiness/pi-autocomplete#readme",
+  "homepage": "https://github.com/softsock/pi-autocomplete#readme",
   "bugs": {
-    "url": "https://github.com/SheetHappiness/pi-autocomplete/issues"
+    "url": "https://github.com/softsock/pi-autocomplete/issues"
   }
 }
