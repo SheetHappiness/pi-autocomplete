@@ -6,7 +6,7 @@
 
 [![npm](https://img.shields.io/npm/v/pi-autocomplete?style=flat&label=npm)](https://www.npmjs.com/package/pi-autocomplete)
 [![npm downloads](https://img.shields.io/npm/dm/pi-autocomplete?style=flat&label=downloads%2Fmonth)](https://www.npmjs.com/package/pi-autocomplete)
-[![GitHub stars](https://img.shields.io/github/stars/softsock/pi-autocomplete?style=flat)](https://github.com/softsock/pi-autocomplete/stargazers)
+[![Star on GitHub](https://img.shields.io/badge/Star%20on%20GitHub-24292f?style=flat&logo=github&logoColor=white)](https://github.com/softsock/pi-autocomplete)
 [![Pi](https://img.shields.io/badge/Pi-extension-222?style=flat)](https://github.com/badlogic/pi-mono)
 [![TypeScript](https://img.shields.io/badge/TypeScript-3178C6?style=flat&logo=typescript&logoColor=white)](https://www.typescriptlang.org/)
 [![Rust](https://img.shields.io/badge/Rust-000?style=flat&logo=rust&logoColor=white)](https://www.rust-lang.org/)
