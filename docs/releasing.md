@@ -1,6 +1,6 @@
 # Preparing v0.1.2 for publication
 
-The canonical repository is [`SheetHappiness/pi-autocomplete`](https://github.com/SheetHappiness/pi-autocomplete).
+The canonical repository is [`softsock/pi-autocomplete`](https://github.com/softsock/pi-autocomplete).
 The npm parent is `pi-autocomplete`; the unscoped `pi-ghost-autocomplete` name
 belongs to a different author and must not be used for this release.
 The four existing `@sheethappiness/pi-ghost-autocomplete-<platform>` package names

@@ -10,7 +10,7 @@
 [![Rust](https://img.shields.io/badge/Rust-000?style=flat&logo=rust&logoColor=white)](https://www.rust-lang.org/)
 [![SmolLM2](https://img.shields.io/badge/SmolLM2-135M-yellow?style=flat)](https://huggingface.co/HuggingFaceTB/SmolLM2-135M)
 [![Node](https://img.shields.io/badge/Node.js-%E2%89%A522.19-339933?style=flat&logo=node.js&logoColor=white)](https://nodejs.org/)
-[![License](https://img.shields.io/github/license/SheetHappiness/pi-autocomplete?style=flat)](LICENSE)
+[![License](https://img.shields.io/github/license/softsock/pi-autocomplete?style=flat)](LICENSE)
 
 </div>
 
@@ -45,10 +45,10 @@ The goal: spend less time finishing repetitive words while keeping Pi's usual ed
 **GitHub (stable releases)**
 
 ```sh
-pi install git:github.com/SheetHappiness/pi-autocomplete@stable
+pi install git:github.com/softsock/pi-autocomplete@stable
 ```
 
-The [`stable` branch](https://github.com/SheetHappiness/pi-autocomplete/tree/stable) tracks verified releases rather than in-progress changes on `main`. Update the extension through Pi:
+The [`stable` branch](https://github.com/softsock/pi-autocomplete/tree/stable) tracks verified releases rather than in-progress changes on `main`. Update the extension through Pi:
 
 ```sh
 pi update --extensions
@@ -66,7 +66,7 @@ Switching from npm? Run `pi remove npm:pi-autocomplete` before installing the Gi
 
 On the first interactive start, the small model's files are downloaded, verified and cached; afterward, inference runs locally. The dictionary keeps working even if the model is unavailable.
 
-[View package in the Pi catalog](https://pi.dev/packages/pi-autocomplete) · [Report a bug or suggest an improvement](https://github.com/SheetHappiness/pi-autocomplete/issues)
+[View package in the Pi catalog](https://pi.dev/packages/pi-autocomplete) · [Report a bug or suggest an improvement](https://github.com/softsock/pi-autocomplete/issues)
 
 ## ⚙️ How it works
 
