@@ -1,6 +1,7 @@
-import type {
-  ExtensionAPI,
-  ExtensionContext,
+import {
+  VERSION,
+  type ExtensionAPI,
+  type ExtensionContext,
 } from "@earendil-works/pi-coding-agent";
 import { GhostTextEditor } from "./editor/ghost-text-editor.ts";
 import { GhostController } from "./completion/controller.ts";
@@ -33,6 +34,12 @@ export default function ghostAutocomplete(
     checkNative: assertNativeAvailable,
   },
 ): void {
+  // Pi resolves host peers without checking their declared version range.
+  if (!/^1\.[3-7]\.\d+(?:\+[\w.-]+)?$/.test(VERSION)) {
+    throw new Error(
+      `pi-autocomplete supports Pi 1.3 through 1.7 (found ${VERSION}). Install a supported Pi version or update pi-autocomplete.`,
+    );
+  }
   let enabled = true;
   let runtime: HybridPredictor | undefined;
   let controller: GhostController | undefined;

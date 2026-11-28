@@ -153,6 +153,7 @@ test("actual Pi factory wiring preserves host callbacks and delegated actions", 
     keybindings: keys,
     ui,
     editorContainer: new Container(),
+    extensionDialogs: [],
     disposeActiveSelector() {},
   };
   const method = (

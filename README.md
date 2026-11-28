@@ -44,6 +44,10 @@ The goal: spend less time finishing repetitive words while keeping Pi's usual ed
 
 ## 💿 Install
 
+**Requirements.** Pi 1.3 through 1.7 (stable releases) and Node.js 22.19 or newer. Check your host with `pi --version`.
+
+Both Pi peer packages use `>=1.3.0 <1.8.0`. Pi 1.3.0 is the existing development baseline, and CI also checks installation, discovery, editor rendering, and keybindings on Pi 1.7.0. The upper bound is extended when the next Pi minor passes those checks. Pi supplies both peers when it loads the extension, so they are excluded from the installed extension's dependencies. See [Pi's package documentation](https://docs.pi.dev/latest/packages#declare-dependencies).
+
 **GitHub (stable releases)**
 
 ```sh

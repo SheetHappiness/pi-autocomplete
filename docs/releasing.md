@@ -9,7 +9,7 @@ are intentional and remain unchanged for compatibility.
 **This document is a release checklist, not authorization to publish.**
 Do not use `--publish` without explicit approval.
 
-1. Wait for every native CI job and `package-set` to succeed on the same commit.
+1. Wait for every native CI job, `pi-host-compatibility`, and `package-set` to succeed on the same commit.
    Each runner tests its own binary, real-model inference and Pi installation.
 2. Download and extract that run's `release-candidate` artifact. It contains
    the parent plus Windows x64, Linux x64/glibc, Linux ARM64/glibc and macOS
