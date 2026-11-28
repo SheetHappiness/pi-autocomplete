@@ -1,8 +1,19 @@
 import assert from "node:assert/strict";
-import { test } from "node:test";
-import { mkdtemp, readFile, writeFile, mkdir, rm } from "node:fs/promises";
-import { join } from "node:path";
+import { fork } from "node:child_process";
+import { once } from "node:events";
+import { test, type TestContext } from "node:test";
+import {
+  mkdtemp,
+  readFile,
+  readdir,
+  writeFile,
+  mkdir,
+  rm,
+  rmdir,
+} from "node:fs/promises";
+import { dirname, join } from "node:path";
 import { tmpdir } from "node:os";
+import { releaseDictionaryLock } from "../src/dictionary/lock.ts";
 import { PersonalDictionaryStore } from "../src/dictionary/store.ts";
 
 async function fixture(t: { after(fn: () => Promise<void>): void }) {
@@ -15,6 +26,110 @@ const options = {
   now: () => 1_800_000_000_000,
   debounceMs: 60_000,
 };
+
+function writer(t: TestContext, path: string, word: string, mode = "write") {
+  const child = fork(
+    new URL("./fixtures/dictionary-writer.ts", import.meta.url),
+    [path, word, mode],
+    {
+      execArgv: ["--experimental-strip-types"],
+    },
+  );
+  const exit = once(child, "exit");
+  t.after(async () => {
+    child.kill();
+    await exit;
+  });
+  const message = (expected: string) =>
+    Promise.race([
+      once(child, "message").then(([actual]) => assert.equal(actual, expected)),
+      exit.then(([code, signal]) =>
+        assert.fail(`Writer exited before ${expected}: ${code ?? signal}`),
+      ),
+    ]);
+  return { child, exit, message };
+}
+
+test(
+  "live writers keep their lock and competing writers recover it after a crash",
+  { timeout: 10_000 },
+  async (t) => {
+    const path = await fixture(t);
+    const seed = new PersonalDictionaryStore(path, options);
+    seed.recordPrompt("capricorn");
+    await seed.close();
+
+    const holder = writer(t, path, "octopus", "hold");
+    await holder.message("ready");
+    const locked = holder.message("locked");
+    holder.child.send("start");
+    await locked;
+
+    const contender = new PersonalDictionaryStore(path, {
+      ...options,
+      lockTimeoutMs: 40,
+    });
+    contender.recordPrompt("elephant");
+    await assert.rejects(contender.persist(), /Dictionary lock timeout/);
+    assert.deepEqual(
+      JSON.parse(await readFile(path, "utf8")).words.map(
+        (entry: { word: string }) => entry.word,
+      ),
+      ["capricorn"],
+    );
+    assert.ok(holder.child.kill("SIGKILL"));
+    await holder.exit;
+
+    const first = writer(t, path, "elephant");
+    const second = writer(t, path, "elephant");
+    await Promise.all([first.message("ready"), second.message("ready")]);
+    first.child.send("start");
+    second.child.send("start");
+    for (const [code, signal] of await Promise.all([first.exit, second.exit])) {
+      assert.equal(code, 0, `Recovery writer exited with ${code ?? signal}`);
+    }
+    await contender.close();
+    const { words } = JSON.parse(await readFile(path, "utf8"));
+    assert.deepEqual(
+      Object.fromEntries(
+        words.map(
+          ({ word, promptCount }: { word: string; promptCount: number }) => [
+            word,
+            promptCount,
+          ],
+        ),
+      ),
+      {
+        capricorn: 1,
+        elephant: 3,
+      },
+    );
+  },
+);
+
+test("a late recovery cannot remove a new owner's lock", async (t) => {
+  const path = await fixture(t);
+  const lock = `${path}.lock-v2`;
+  await mkdir(join(lock, "new-owner"), { recursive: true });
+  await releaseDictionaryLock(lock, "previous-owner");
+  assert.deepEqual(await readdir(lock), ["new-owner"]);
+  await releaseDictionaryLock(lock, "new-owner");
+  await assert.rejects(readdir(lock), { code: "ENOENT" });
+});
+
+test("an empty v2 lock directory is recovered after interrupted cleanup", async (t) => {
+  const path = await fixture(t);
+  await mkdir(`${path}.lock-v2`);
+  const store = new PersonalDictionaryStore(path, options);
+  store.recordAcceptance("capric", "orn");
+  await store.persist();
+  assert.equal(
+    JSON.parse(await readFile(path, "utf8")).pairs[0].word,
+    "capricorn",
+  );
+  await assert.rejects(readdir(`${path}.lock-v2`), { code: "ENOENT" });
+  await store.close();
+});
 
 test("store merges concurrent writers without double counting and survives restart", async (t) => {
   const path = await fixture(t);
@@ -89,7 +204,7 @@ test("corrupt and unsupported states recover with common dictionary and diagnost
   }
 });
 
-test("lock timeout retains pending data for retry; clear removes learned vocabulary", async (t) => {
+test("legacy lock requires offline cleanup and old writers cannot resume after migration", async (t) => {
   const path = await fixture(t),
     warnings: string[] = [];
   const s = new PersonalDictionaryStore(path, {
@@ -100,10 +215,17 @@ test("lock timeout retains pending data for retry; clear removes learned vocabul
   await s.load();
   s.recordAcceptance("capric", "orn");
   await mkdir(path + ".lock");
-  await assert.rejects(s.persist(), /lock/);
+  await assert.rejects(s.persist(), (error: Error) => {
+    assert.ok(error.message.includes(`${path}.lock`));
+    assert.match(error.message, /close all Pi sessions/i);
+    return true;
+  });
   assert.equal(s.lookup("capric")?.suffix, "orn");
-  await rm(path + ".lock", { recursive: true });
+  assert.deepEqual(await readdir(path + ".lock"), []);
+  await rmdir(path + ".lock");
   await s.persist();
+  await assert.rejects(mkdir(path + ".lock"), { code: "EEXIST" });
+  assert.equal(await readFile(path + ".lock", "utf8"), "");
   assert.equal(JSON.parse(await readFile(path, "utf8")).pairs.length, 1);
   await s.clear();
   assert.equal(s.lookup("capric"), undefined);
@@ -113,6 +235,61 @@ test("lock timeout retains pending data for retry; clear removes learned vocabul
     pairs: [],
   });
   await s.close();
+});
+
+test("a failed atomic replacement releases the lock and retries the observations once", async (t) => {
+  const path = await fixture(t);
+  const store = new PersonalDictionaryStore(path, {
+    ...options,
+    read: async () => '{"version":1,"words":[],"pairs":[]}',
+  });
+  store.recordPrompt("capricorn");
+  await mkdir(path);
+  await assert.rejects(store.persist());
+  assert.deepEqual((await readdir(dirname(path))).sort(), [
+    "personal-v1.json",
+    "personal-v1.json.lock",
+  ]);
+  await rmdir(path);
+  await store.persist();
+  await store.close();
+  assert.equal(
+    JSON.parse(await readFile(path, "utf8")).words[0].promptCount,
+    1,
+  );
+});
+
+test("lock cleanup failure warns after a successful replacement without retrying it", async (t) => {
+  const path = await fixture(t);
+  const lock = `${path}.lock-v2`;
+  const warnings: string[] = [];
+  let obstruction: string | undefined;
+  const store = new PersonalDictionaryStore(path, {
+    ...options,
+    async read(file) {
+      if (!obstruction) {
+        const [owner] = await readdir(lock).catch(() => []);
+        if (owner) {
+          obstruction = join(lock, owner, "obstruction");
+          await mkdir(obstruction);
+        }
+      }
+      return readFile(file, "utf8");
+    },
+    onDiagnostic: (message) => warnings.push(message),
+  });
+  store.recordPrompt("capricorn");
+  await store.persist();
+  assert.match(warnings[0], /lock cleanup failed/i);
+  assert.ok(obstruction);
+  await rmdir(obstruction);
+  const [owner] = await readdir(lock);
+  await releaseDictionaryLock(lock, owner);
+  await store.close();
+  assert.equal(
+    JSON.parse(await readFile(path, "utf8")).words[0].promptCount,
+    1,
+  );
 });
 
 test("failed writes retain pending observations and close reports unsaved data", async (t) => {

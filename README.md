@@ -119,6 +119,10 @@ Repeated words inside one submitted prompt count once.
 
 Code, paths, slash commands and paste markers are excluded from personal vocabulary learning.
 
+Pi can resume local dictionary writes after a crash once the previous lock owner is gone. Share the dictionary between sessions running in the same OS instance. Words still waiting to be saved at the time of the crash may be lost.
+
+If an upgrade reports an empty legacy `personal-v1.json.lock` directory, close all Pi sessions using that dictionary, remove the empty directory at the path in the warning, and restart Pi. Keep `personal-v1.json`, which contains the saved vocabulary. The current version creates an empty `.lock` file to prevent older versions from writing concurrently. To roll back, close all Pi sessions and remove that empty file before starting the older version.
+
 To clear the learned dictionary:
 
 ```text

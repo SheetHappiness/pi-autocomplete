@@ -1,14 +1,6 @@
-import {
-  readFile,
-  writeFile,
-  mkdir,
-  rename,
-  rm,
-  rmdir,
-} from "node:fs/promises";
+import { readFile, writeFile, mkdir, rename, rm } from "node:fs/promises";
 import { dirname } from "node:path";
 import { randomUUID } from "node:crypto";
-import { setTimeout as delay } from "node:timers/promises";
 import {
   DictionaryIndex,
   normalizeWord,
@@ -19,6 +11,7 @@ import {
   type WordStats,
   type PrefixStats,
 } from "./lexicon.ts";
+import { acquireDictionaryLock } from "./lock.ts";
 import type { Suggestion } from "../completion/types.ts";
 
 interface Options {
@@ -212,22 +205,12 @@ export class PersonalDictionaryStore {
     await this.load();
     if (!clear && !this.pending.length) return;
     await mkdir(dirname(this.path), { recursive: true });
-    const lock = this.path + ".lock",
-      deadline = Date.now() + (this.options.lockTimeoutMs ?? 2000);
-    for (;;) {
-      try {
-        await mkdir(lock);
-        break;
-      } catch (e) {
-        if ((e as NodeJS.ErrnoException).code !== "EEXIST") throw e;
-        if (Date.now() >= deadline)
-          throw new Error(
-            "Dictionary lock timeout; pending changes remain unsaved",
-          );
-        await delay(10);
-      }
-    }
     const temp = `${this.path}.${randomUUID()}.tmp`;
+    const release = await acquireDictionaryLock(
+      this.path,
+      this.options.lockTimeoutMs ?? 2000,
+      (message) => this.warn(message),
+    );
     try {
       const merged = new DictionaryIndex([]);
       if (!clear) merged.replace(await this.readState());
@@ -245,8 +228,19 @@ export class PersonalDictionaryStore {
       this.index.replace(merged.snapshot(this.now()));
       for (const delta of this.pending) this.apply(this.index, delta);
     } finally {
-      await rm(temp, { force: true });
-      await rmdir(lock);
+      try {
+        await rm(temp, { force: true });
+      } catch (error) {
+        this.warn(
+          `Dictionary temporary file cleanup failed at ${temp}: ${String(error)}`,
+        );
+      } finally {
+        await release().catch((error) =>
+          this.warn(
+            `Dictionary lock cleanup failed at ${this.path}.lock-v2: ${String(error)}`,
+          ),
+        );
+      }
     }
   }
 
