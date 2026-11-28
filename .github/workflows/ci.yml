@@ -59,6 +59,31 @@ jobs:
         with:
           name: pi-ghost-${{ matrix.target }}
           path: artifacts/*.tgz
+  pi-host-compatibility:
+    needs: native
+    runs-on: ubuntu-22.04
+    env:
+      PI_HOST_VERSION: 1.7.0
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
+        with:
+          node-version: 22.23.3
+          cache: npm
+      - uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093
+        with:
+          name: pi-ghost-linux-x64-gnu
+          path: artifacts
+      - name: Install against the newest supported Pi minor and verify editor behavior
+        env:
+          PI_CODING_AGENT_DIR: ${{ runner.temp }}/pi-agent
+          PI_GHOST_STATE_DIR: ${{ runner.temp }}/ghost-state
+          PI_GHOST_GIT_SOURCE: git:github.com/${{ github.event.pull_request.head.repo.full_name || github.repository }}@${{ github.event.pull_request.head.sha || github.sha }}
+        run: |
+          npm install --no-save --package-lock=false --ignore-scripts \
+            "@earendil-works/pi-coding-agent@$PI_HOST_VERSION" "@earendil-works/pi-tui@$PI_HOST_VERSION"
+          node --experimental-strip-types --test test/host-wiring.test.ts test/ghost-text-editor.test.ts test/render-ghost.test.ts
+          node scripts/install-smoke.mjs
   package-set:
     needs: native
     runs-on: ubuntu-22.04

@@ -121,6 +121,18 @@ function run(args) {
     );
   });
 }
+async function assertNoInstalledHostPeers(...roots) {
+  for (const root of roots) {
+    for (const peer of Object.keys(parent.peerDependencies)) {
+      const path = join(root, "node_modules", peer);
+      await assert.rejects(
+        access(path),
+        { code: "ENOENT" },
+        `Unexpected installed host peer: ${path}`,
+      );
+    }
+  }
+}
 try {
   const source = `npm:${parent.name}@${version}`;
   const installed = await run(["install", source]);
@@ -135,9 +147,7 @@ try {
   );
   assert.ok(inventory.length >= 60);
   // Host-provided peers must not get installed into the managed package root.
-  await assert.rejects(
-    access(join(agentDir, "npm/node_modules/@earendil-works/pi-coding-agent")),
-  );
+  await assertNoInstalledHostPeers(join(agentDir, "npm"), installedRoot);
   process.env.PI_CODING_AGENT_DIR = agentDir;
   const loader = new DefaultResourceLoader({
     cwd,
@@ -190,6 +200,7 @@ try {
     const gitManifest = JSON.parse(await readFile(join(gitRoot, "package.json"), "utf8"));
     assert.equal(gitManifest.version, version, "GitHub checkout has the wrong package version");
     assert.deepEqual(gitManifest.pi.extensions, parent.pi.extensions);
+    await assertNoInstalledHostPeers(gitRoot);
 
     const nativeName = names[1];
     const gitNativePath = join(gitRoot, "node_modules", nativeName, "ghost-native.node");
